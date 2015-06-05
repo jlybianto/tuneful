@@ -14,21 +14,19 @@ class Song(Base):
     
     def asDictionary(self):
         return {
-            "id": 1,
-            "file": {
-                "id": 7,
-                "name": "Shady_Grove.mp3"
-            }
+            "id": self.id,
+            "file": self.file and self.file.asDictionary()
         }
 
 class File(Base):
-    ___tablename__ = "files"
+    __tablename__ = "files"
     id = Column(Integer, primary_key=True)
     filename = Column(String(1024))
     song_id = Column(Integer, ForeignKey("songs.id"))
     
     def asDictionary(self):
         return {
-            "id": 7,
-            "name": "Shady_Grove.mp3"
+            "id": self.id,
+            "name": self.filename,
+            "path": url_for("uploaded_file", filename=self.filename)
         }
