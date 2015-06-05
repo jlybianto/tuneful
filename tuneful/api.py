@@ -91,3 +91,8 @@ def song_delete(id):
     message = "Deleted song with id {} from database".format(id)
     data = json.dumps({"message": message})
     return Response(data, 200, mimetype="application/json")
+
+@app.route("/uploads/<filename>", methods=["GET"])
+def uploaded_file(filename):
+    """ Serve the file from the upload path """
+    return send_from_directory(upload_path(), filename)
