@@ -36,4 +36,16 @@ class TestAPI(unittest.TestCase):
         # Delete test upload folder
         shutil.rmtree(upload_path())
 
-
+    def test_get_uploaded_file(self):
+        # Use 'upload_path' function defined in 'utils.py' to get the location of file
+        path = upload_path("test.txt")
+        with open(path, "w") as f:
+            f.write("File contents")
+            
+        # Send a GET request to '/uploads/<filename>'
+        response = self.client.get("/uploads/test.txt")
+        
+        # Check that the response contains the correct file with correct mimetype
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "text/plain")
+        self.assertEqual(response.data, "File contents")
