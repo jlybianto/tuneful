@@ -37,6 +37,7 @@ class TestAPI(unittest.TestCase):
         shutil.rmtree(upload_path())
 
     def test_get_uploaded_file(self):
+        """ Test of adding a file to an upload folder """
         # Use 'upload_path' function defined in 'utils.py' to get the location of file
         path = upload_path("test.txt")
         with open(path, "w") as f:
@@ -49,3 +50,29 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.mimetype, "text/plain")
         self.assertEqual(response.data, "File contents")
+    
+    def test_file_upload(self):
+        """ Test to upload simple text file to server """
+        # Construct the form data as a dictionary using an instance of 'StringIO' class
+        data = {
+            "file": (StringIO("File contents"), "test.txt")
+        }
+        
+        # Send this dictionary to endpoint with content type of 'multipart/form-data'
+        response = self.client.post("/api/files",
+                                   data=data,
+                                   content_type="multipart/form-data",
+                                   headers=[("Accept", "application/json")]
+                                   )
+        
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.mimetype, "application/json")
+        
+        data = json.loads(response.data)
+        self.assertEqual(urlparse(data["path"]).path, "/uploads/test.txt")
+        
+        path = upload_path("test.txt")
+        self.assertTrue(os.path.isfile(path))
+        with open(path) as f:
+            contents = f.read()
+        self.assertEqual(contents, "File contents")
